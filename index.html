@@ -115,7 +115,81 @@
                 <i class="bi bi-box-arrow-up-right text-muted"></i>
               </a>
             </div>
+<!-- CONTADOR REGRESSIVO DO SEMESTRE -->
+            <div class="card bg-light border-warning mb-5">
+              <div class="card-body text-center p-4">
+                <h4 class="h5 fw-bold text-dark mb-3">
+                  <i class="bi bi-clock-history text-warning me-2"></i> Prazo Final do Semestre
+                </h4>
+                
+                <!-- Bloco do Contador (Visível até 18/12) -->
+                <div id="contador-container" class="d-flex justify-content-center gap-2 gap-sm-3 my-3">
+                  <div class="bg-white p-2 p-sm-3 rounded shadow-sm border text-center" style="min-width: 70px;">
+                    <span id="dias" class="d-block display-6 fw-bold text-dark">00</span>
+                    <small class="text-muted text-uppercase fw-semibold" style="font-size: 0.75rem;">Dias</small>
+                  </div>
+                  <div class="bg-white p-2 p-sm-3 rounded shadow-sm border text-center" style="min-width: 70px;">
+                    <span id="horas" class="d-block display-6 fw-bold text-dark">00</span>
+                    <small class="text-muted text-uppercase fw-semibold" style="font-size: 0.75rem;">Horas</small>
+                  </div>
+                  <div class="bg-white p-2 p-sm-3 rounded shadow-sm border text-center" style="min-width: 70px;">
+                    <span id="minutos" class="d-block display-6 fw-bold text-dark">00</span>
+                    <small class="text-muted text-uppercase fw-semibold" style="font-size: 0.75rem;">Min</small>
+                  </div>
+                  <div class="bg-white p-2 p-sm-3 rounded shadow-sm border text-center" style="min-width: 70px;">
+                    <span id="segundos" class="d-block display-6 fw-bold text-warning">00</span>
+                    <small class="text-muted text-uppercase fw-semibold" style="font-size: 0.75rem;">Seg</small>
+                  </div>
+                </div>
 
+                <!-- Mensagem de Fim de Semestre (Oculta até o encerramento) -->
+                <div id="mensagem-encerramento" class="alert alert-info border-0 mb-0 d-none" role="alert">
+                  <i class="bi bi-sun-fill text-warning fs-3 d-block mb-2"></i>
+                  <strong>O semestre acabou!</strong><br>
+                  Organize a sua documentação e envie no início do próximo semestre. Boas férias!
+                </div>
+              </div>
+            </div>
+
+            <!-- SCRIPT DO CONTADOR -->
+            <script>
+              document.addEventListener('DOMContentLoaded', function () {
+                // Define a data limite: 18 de Dezembro do ano atual às 23:59:59
+                const anoAtual = new Date().getFullYear();
+                const dataLimite = new Date(`December 18, ${anoAtual} 23:59:59`).getTime();
+
+                function atualizarContador() {
+                  const agora = new Date().getTime();
+                  const diferenca = dataLimite - agora;
+
+                  // Se a data já passou
+                  if (diferenca <= 0) {
+                    document.getElementById('contador-container').classList.add('d-none');
+                    document.getElementById('mensagem-encerramento').classList.remove('d-none');
+                    clearInterval(intervalo);
+                    return;
+                  }
+
+                  // Cálculos de Dias, Horas, Minutos e Segundos
+                  const dias = Math.floor(diferenca / (1000 * 60 * 60 * 24));
+                  const horas = Math.floor((diferenca % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                  const minutos = Math.floor((diferenca % (1000 * 60 * 60)) / (1000 * 60));
+                  const segundos = Math.floor((diferenca % (1000 * 60)) / 1000);
+
+                  // Atualiza no HTML com zero à esquerda (ex: 05)
+                  document.getElementById('dias').innerText = String(dias).padStart(2, '0');
+                  document.getElementById('horas').innerText = String(horas).padStart(2, '0');
+                  document.getElementById('minutos').innerText = String(minutos).padStart(2, '0');
+                  document.getElementById('segundos').innerText = String(segundos).padStart(2, '0');
+                }
+
+                // Executa imediatamente e depois a cada 1 segundo
+                atualizarContador();
+                const intervalo = setInterval(atualizarContador, 1000);
+              });
+            </script>
+
+            
          <!-- SEÇÃO DE DÚVIDAS FREQUENTES (FAQ) EXPANDIDA -->
             <h3 class="h4 fw-bold text-dark mt-5 mb-4 border-bottom pb-2">
               <i class="bi bi-question-circle-fill text-warning me-2"></i> Dúvidas Frequentes (FAQ)
