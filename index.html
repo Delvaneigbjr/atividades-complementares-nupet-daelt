@@ -230,14 +230,16 @@
               </div>
             </div>
             
-<!-- CONTADOR REGRESSIVO DO SEMESTRE -->
-            <div class="card bg-light border-warning mb-5">
+<!-- CARD DO CONTADOR REGRESSIVO / MENSAGENS DO SEMESTRE -->
+            <div id="card-semestre" class="card bg-light border-warning mb-5 shadow-sm">
               <div class="card-body text-center p-4">
-                <h4 class="h5 fw-bold text-dark mb-3">
-                  <i class="bi bi-clock-history text-warning me-2"></i> Prazo Final do Semestre
-                </h4>
                 
-                <!-- Bloco do Contador (Visível até 18/12) -->
+                <!-- TÍTULO DINÂMICO -->
+                <h4 id="titulo-contador" class="h5 fw-bold text-dark mb-3">
+                  <i class="bi bi-clock-history text-warning me-2"></i> Status do Semestre
+                </h4>
+
+                <!-- CONTADOR REGRESSIVO (Visível antes e durante o semestre) -->
                 <div id="contador-container" class="d-flex justify-content-center gap-2 gap-sm-3 my-3">
                   <div class="bg-white p-2 p-sm-3 rounded shadow-sm border text-center" style="min-width: 70px;">
                     <span id="dias" class="d-block display-6 fw-bold text-dark">00</span>
@@ -257,50 +259,89 @@
                   </div>
                 </div>
 
-                <!-- Mensagem de Fim de Semestre (Oculta até o encerramento) -->
-                <div id="mensagem-encerramento" class="alert alert-info border-0 mb-0 d-none" role="alert">
-                  <i class="bi bi-sun-fill text-warning fs-3 d-block mb-2"></i>
-                  <strong>O semestre acabou!</strong><br>
-                  Organize a sua documentação e envie no início do próximo semestre. Boas férias!
+                <!-- AVISO DE STATUS (SUBTÍTULO / MENSAGEM) -->
+                <div id="status-mensagem" class="mt-3">
+                  <!-- Texto atualizado via JavaScript -->
                 </div>
+
               </div>
             </div>
 
-            <!-- SCRIPT DO CONTADOR -->
+            <!-- SCRIPT DINÂMICO DE CONTROLE DE DATAS DO SEMESTRE -->
             <script>
               document.addEventListener('DOMContentLoaded', function () {
-                // Define a data limite: 18 de Dezembro do ano atual às 23:59:59
-                const anoAtual = new Date().getFullYear();
-                const dataLimite = new Date(`December 18, ${anoAtual} 23:59:59`).getTime();
+                // =========================================================
+                // CONFIGURAÇÃO DE DATAS DO SEMESTRE (Altere aqui a cada período)
+                // Formato aceito: YYYY-MM-DDTHH:mm:ss
+                // =========================================================
+                const dataInicio = new Date("2026-08-18T00:00:00").getTime();
+                const dataFim    = new Date("2026-12-19T23:59:59").getTime();
 
-                function atualizarContador() {
+                function atualizarStatusSemestre() {
                   const agora = new Date().getTime();
-                  const diferenca = dataLimite - agora;
+                  const elTitulo = document.getElementById('titulo-contador');
+                  const elContador = document.getElementById('contador-container');
+                  const elStatus = document.getElementById('status-mensagem');
 
-                  // Se a data já passou
-                  if (diferenca <= 0) {
-                    document.getElementById('contador-container').classList.add('d-none');
-                    document.getElementById('mensagem-encerramento').classList.remove('d-none');
+                  // ESTADO 1: ANTES DO INÍCIO DO SEMESTRE
+                  if (agora < dataInicio) {
+                    const diferenca = dataInicio - agora;
+                    renderizarTempo(diferenca);
+
+                    elTitulo.innerHTML = `<i class="bi bi-hourglass-split text-warning me-2"></i> Abertura do Semestre Lectivo`;
+                    elStatus.innerHTML = `
+                      <div class="alert alert-secondary border-0 mb-0" role="alert">
+                        <i class="bi bi-info-circle-fill text-primary me-1"></i>
+                        <strong>O período de envio de documentos ainda não começou.</strong><br>
+                        Aproveite para organizar seus certificados e comprovantes. As submissões serão liberadas no início do semestre.
+                      </div>`;
+                  } 
+                  // ESTADO 2: DURANTE O SEMESTRE (PERÍODO DE ENVIOS ABERTO)
+                  else if (agora >= dataInicio && agora <= dataFim) {
+                    const diferenca = dataFim - agora;
+                    renderizarTempo(diferenca);
+
+                    elTitulo.innerHTML = `<i class="bi bi-clock-history text-warning me-2"></i> Prazo Final para Envio de Documentos`;
+                    elStatus.innerHTML = `
+                      <div class="alert alert-success border-0 mb-0" role="alert">
+                        <i class="bi bi-check-circle-fill text-success me-1"></i>
+                        <strong>As submissões estão ABERTAS!</strong><br>
+                        Verifique todos os requisitos do regulamento e envie sua documentação antes do encerramento do prazo.
+                      </div>`;
+                  } 
+                  // ESTADO 3: APÓS O FIM DO SEMESTRE (FÉRIAS)
+                  else {
+                    elContador.classList.add('d-none'); // Oculta os números
+                    elTitulo.innerHTML = `<i class="bi bi-sun-fill text-warning me-2"></i> Semestre Encerrado`;
+                    elStatus.innerHTML = `
+                      <div class="alert alert-info border-0 mb-0 py-3" role="alert">
+                        <h5 class="fw-bold mb-1">🎉 O semestre letivo chegou ao fim!</h5>
+                        <p class="mb-0">
+                          A recepção de documentos para este período está encerrada.<br>
+                          Organize com calma os seus comprovantes e certificados para realizar o envio no início do próximo semestre.
+                        </p>
+                        <hr class="my-2 opacity-25">
+                        <span class="fw-semibold text-dark"><i class="bi bi-emoji-smile me-1"></i> Desejamos a todos ótimas férias!</span>
+                      </div>`;
                     clearInterval(intervalo);
-                    return;
                   }
+                }
 
-                  // Cálculos de Dias, Horas, Minutos e Segundos
+                function renderizarTempo(diferenca) {
                   const dias = Math.floor(diferenca / (1000 * 60 * 60 * 24));
                   const horas = Math.floor((diferenca % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                   const minutos = Math.floor((diferenca % (1000 * 60 * 60)) / (1000 * 60));
                   const segundos = Math.floor((diferenca % (1000 * 60)) / 1000);
 
-                  // Atualiza no HTML com zero à esquerda (ex: 05)
                   document.getElementById('dias').innerText = String(dias).padStart(2, '0');
                   document.getElementById('horas').innerText = String(horas).padStart(2, '0');
                   document.getElementById('minutos').innerText = String(minutos).padStart(2, '0');
                   document.getElementById('segundos').innerText = String(segundos).padStart(2, '0');
                 }
 
-                // Executa imediatamente e depois a cada 1 segundo
-                atualizarContador();
-                const intervalo = setInterval(atualizarContador, 1000);
+                // Executa imediatamente e atualiza a cada 1 segundo
+                atualizarStatusSemestre();
+                const intervalo = setInterval(atualizarStatusSemestre, 1000);
               });
             </script>
 
